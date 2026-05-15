@@ -13,25 +13,35 @@
  */
 declare(strict_types=1);
 
+// Nạp các thành phần giao diện Modal (cửa sổ nổi)
 require_once __DIR__ . '/../../Shared/Components/flow_modal.php';
+// Nạp các hàm tiện ích hệ thống (DB, Redirect, Auth...)
 require_once __DIR__ . '/../../Helpers/load.php';
 
-/** QR trang trí (demo, không quét thật). */
+/** * TẠO MÃ QR ĐỒ HỌA (MOCK QR)
+ * Sử dụng định dạng SVG để hiển thị mã QR giả lập mà không cần file ảnh.
+ */
 function student_pay_mock_qr_svg(): string {
-  $u = 4;
-  $n = 29;
-  $w = $n * $u;
-  $rects = [];
+  $u = 4;      // Kích thước mỗi ô vuông nhỏ (pixel)
+  $n = 29;     // Số lượng ô vuông trên mỗi cạnh (29x29)
+  $w = $n * $u; // Tổng chiều rộng ảnh
+  $rects = []; // Mảng chứa các khối hình chữ nhật của mã QR
+
+  // Hàm ẩn danh để thêm nhanh một ô vuông vào mảng
   $add = static function (int $x, int $y, int $bw, int $bh, string $fill) use (&$rects, $u): void {
     $rects[] = sprintf('<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>', $x * $u, $y * $u, $bw * $u, $bh * $u, $fill);
   };
+
+  // Vẽ 3 khối vuông định vị (Finder Patterns) ở 3 góc của mã QR
   foreach ([[0, 0], [22, 0], [0, 22]] as $o) {
     $ox = $o[0];
     $oy = $o[1];
-    $add($ox, $oy, 7, 7, '#0f172a');
-    $add($ox + 1, $oy + 1, 5, 5, '#ffffff');
-    $add($ox + 2, $oy + 2, 3, 3, '#0f172a');
+    $add($ox, $oy, 7, 7, '#0f172a');      // Lớp ngoài đen
+    $add($ox + 1, $oy + 1, 5, 5, '#ffffff'); // Lớp giữa trắng
+    $add($ox + 2, $oy + 2, 3, 3, '#0f172a'); // Lớp trong đen
   }
+
+  // Danh sách tọa độ các điểm đen giả lập dữ liệu bên trong mã QR
   $bits = [
     [8, 0, 1, 1], [10, 0, 1, 1], [12, 0, 1, 1], [14, 0, 2, 1], [17, 0, 1, 1], [19, 0, 1, 1],
     [8, 2, 1, 1], [11, 2, 2, 1], [15, 2, 1, 1], [18, 2, 2, 1],
@@ -44,16 +54,16 @@ function student_pay_mock_qr_svg(): string {
     [8, 19, 2, 1], [12, 19, 1, 1], [14, 19, 4, 1], [20, 19, 2, 1],
     [8, 21, 1, 1], [11, 21, 2, 1], [15, 21, 1, 1], [18, 21, 3, 1],
   ];
+
+  // Duyệt qua danh sách và vẽ từng điểm đen
   foreach ($bits as $b) {
     $add($b[0], $b[1], $b[2], $b[3], '#0f172a');
   }
+
+  // Xuất ra chuỗi mã HTML SVG hoàn chỉnh
   return sprintf(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="200" height="200" shape-rendering="crispEdges" aria-hidden="true" class="qb-pay-qr-svg"><rect width="%d" height="%d" fill="#fff"/>%s</svg>',
-    $w,
-    $w,
-    $w,
-    $w,
-    implode('', $rects)
+    $w, $w, $w, $w, implode('', $rects)
   );
 }
 
