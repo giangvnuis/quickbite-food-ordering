@@ -34,7 +34,7 @@ function render_student_nav_strip(string $active): void {
     ['key' => 'orders', 'label' => 'Orders', 'href' => student_url('orders')],
     ['key' => 'profile', 'label' => 'Profile', 'href' => student_url('profile')],
   ];
-  ?>s
+  ?>
     <nav class="qb-nav-strip" aria-label="Student sections">
       <div class="qb-nav-strip-inner">
         <?php foreach ($items as $it): ?>
